@@ -33,6 +33,16 @@ public:
 };
 
 class Paddle {
+protected:
+    void LimitMovement() {
+        if (y <= 0) {
+            y = 0;
+        }
+        if (y + height >= GetScreenHeight()) {
+            y = GetScreenHeight() - height;
+        }
+    };
+
 public:
     float x, y;
     float width, height;
@@ -44,23 +54,33 @@ public:
     }
 
     void Update() {
-        if(IsKeyDown(KEY_UP)){
+        if (IsKeyDown(KEY_UP)) {
             y = y - speed;
         }
-        if(IsKeyDown(KEY_DOWN)){
+        if (IsKeyDown(KEY_DOWN)) {
             y = y + speed;
         }
-        if(y<=0){
-            y=0;
+        if (y <= 0) {
+            y = 0;
         }
-        if(y+height >= GetScreenHeight()){
+        if (y + height >= GetScreenHeight()) {
             y = GetScreenHeight() - height;
         }
+        LimitMovement();
     }
 };
 
-class CpuPadle: public Paddle{
-
+class CpuPadle : public Paddle {
+public:
+    void Update(int ball_y) {
+        if (y + height / 2 > ball_y) {
+            y = y - speed;
+        }
+        if (y + height / 2 <= ball_y) {
+            y = y + speed;
+        }
+        LimitMovement();
+    }
 };
 
 Ball ball;
@@ -83,13 +103,13 @@ int main() {
     player.width = 25;
     player.height = 120;
     player.x = screenWidth - player.width;
-    player.y = screenHeight/2 - player.height/2;
+    player.y = screenHeight / 2 - player.height / 2;
     player.speed = 6;
 
     cpuPaddle.width = 25;
     cpuPaddle.height = 120;
-    cpuPaddle.x = screenWidth - player.width;
-    cpuPaddle.y = screenHeight/2 - player.height/2;
+    cpuPaddle.x = 10;
+    cpuPaddle.y = screenHeight / 2 - cpuPaddle.height / 2;
     cpuPaddle.speed = 6;
 
 
@@ -100,10 +120,10 @@ int main() {
         BeginDrawing();
         ball.Update();
         player.Update();
+        cpuPaddle.Update(ball.y);
         ClearBackground(BLACK);
-        //right
-        DrawRectangle(10, screenHeight / 2 - 60, 20, 120, WHITE);
         player.Draw();
+        cpuPaddle.Draw();
         //Drawing Separating Line
         DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, WHITE);
         ball.Draw();
