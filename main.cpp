@@ -7,6 +7,8 @@
 
 using namespace std;
 
+int playerScore = 0;
+int cpuScore = 0;
 
 class Ball {
 public:
@@ -26,8 +28,13 @@ public:
         if (y + radius >= GetScreenHeight() || y - radius <= 0) {
             speed_y *= -1;
         }
-        if (x + radius >= GetScreenWidth() || x - radius <= 0) {
+        if (x + radius >= GetScreenWidth()) {
+            cpuScore++;
             speed_x *= -1;
+        }
+        if (x - radius <= 0) {
+            speed_x *= -1;
+            playerScore++;
         }
     }
 };
@@ -108,7 +115,7 @@ int main() {
 
     cpuPaddle.width = 25;
     cpuPaddle.height = 120;
-    cpuPaddle.x = 10;
+    cpuPaddle.x = 5;
     cpuPaddle.y = screenHeight / 2 - cpuPaddle.height / 2;
     cpuPaddle.speed = 6;
 
@@ -121,12 +128,25 @@ int main() {
         ball.Update();
         player.Update();
         cpuPaddle.Update(ball.y);
+
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
+                                    Rectangle{player.x, player.y, player.width, player.height})) {
+            ball.speed_x *= -1;
+        }
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius,
+                                    Rectangle{cpuPaddle.x, cpuPaddle.y, cpuPaddle.width, cpuPaddle.height})) {
+            ball.speed_x *= -1;
+        }
+
         ClearBackground(BLACK);
-        player.Draw();
-        cpuPaddle.Draw();
         //Drawing Separating Line
         DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, WHITE);
         ball.Draw();
+        player.Draw();
+        cpuPaddle.Draw();
+
+        DrawText(TextFormat("CPU Score: %i", cpuScore), screenWidth / 4 - 20, 20, 20, WHITE);
+        DrawText(TextFormat("Player Score: %i", playerScore), 3 * screenWidth / 4 - 20, 20, 20, WHITE);
 
 
         EndDrawing();
